@@ -1,17 +1,19 @@
+"use strict";
 /// <reference path="webntp.ts" />
-
-namespace WebNTPTest {
-    const clock = document.getElementById("clock");
+var WebNTPTest;
+(function (WebNTPTest) {
+    const clock = document.getElementById('clock');
     let c = new WebNTP.Client();
-    let result: WebNTP.Result;
-    c.get("ws://localhost:8080/").then((r) => {
+    let result;
+    c.get('ws://localhost:8080/')
+        .then(r => {
         console.log(r);
         result = r;
         show();
-    }).catch(reason => {
+    })
+        .catch(reason => {
         console.log(reason);
     });
-
     function show() {
         if (!result) {
             return;
@@ -23,4 +25,5 @@ namespace WebNTPTest {
         }
         requestAnimationFrame(show);
     }
-}
+})(WebNTPTest || (WebNTPTest = {}));
+//# sourceMappingURL=index.js.map
