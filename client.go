@@ -163,7 +163,7 @@ func (c *Client) getHTTP(ctx context.Context, uri string) (Result, error) {
 	// Install ClientTrace
 	var start, end time.Time
 	trace := &httptrace.ClientTrace{
-		WroteRequest:         func(info httptrace.WroteRequestInfo) { start = clientStartTime() },
+		WroteRequest:         func(_ httptrace.WroteRequestInfo) { start = clientStartTime() },
 		GotFirstResponseByte: func() { end = clientEndTime() },
 	}
 	ctx = httptrace.WithClientTrace(ctx, trace)
