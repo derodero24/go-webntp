@@ -9,14 +9,14 @@ WebNTP is NTP(-like) service via HTTP/WebSocket.
 
 First, `go install` and start the WebNTP Server.
 
-``` plain
+```plain
 $ go install github.com/shogo82148/go-webntp/cmd/webntp
 $ webntp -serve :8080
 ```
 
 Sync with the server via HTTP.
 
-``` plain
+```plain
 $ webntp http://localhost:8080/
 server http://localhost:8080/, offset -0.000066, delay 0.001453
 2017-03-11 18:25:10.905049427 +0900 JST, server http://localhost:8080/, offset -0.000066
@@ -24,7 +24,7 @@ server http://localhost:8080/, offset -0.000066, delay 0.001453
 
 Sync with the server via WebSocket.
 
-``` plain
+```plain
 $ webntp ws://localhost:8080/
 server ws://localhost:8080/, offset -0.000013, delay 0.000288
 2017-03-11 18:25:36.668531757 +0900 JST, server ws://localhost:8080/, offset -0.000013
@@ -32,7 +32,7 @@ server ws://localhost:8080/, offset -0.000013, delay 0.000288
 
 I provide a public WebNTP API.
 
-``` plain
+```plain
 $ webntp https://webntp.shogo82148.com/api
 server https://webntp.shogo82148.com/api, offset -0.006376, delay 0.024411
 2017-03-11 16:08:06.150393313 +0900 JST, server https://webntp.shogo82148.com/api, offset -0.006376
@@ -42,21 +42,21 @@ server https://webntp.shogo82148.com/api, offset -0.006376, delay 0.024411
 
 Add a new server to your `ntpd.conf`.
 
-``` plain
+```plain
 server 127.127.28.2 noselect
 fudge 127.127.28.2 refid PYTH stratum 10
 ```
 
 Run WebNTP with `-shm 2` option.
 
-``` plain
+```plain
 $ webntp -p 1 -shm 2 https://webntp.shogo82148.com/api
 server https://webntp.shogo82148.com/api, offset -0.003258, delay 0.018910
 ```
 
 ntpd starts syncing with WebNTP.
 
-``` plain
+```plain
 $ ntpq -p
      remote           refid      st t when poll reach   delay   offset  jitter
 ==============================================================================
@@ -64,10 +64,9 @@ $ ntpq -p
 *webntp.shogo82. .NICT.           1 u   58   64   37   10.280    1.494   2.028
 ```
 
-
 ## Usage
 
-``` plain
+```plain
 $ webntp --help
   -allow-cross-origin
     	allow cross origin request
@@ -85,7 +84,6 @@ $ webntp --help
     	ntpd shared-memory-segment
 ```
 
-
 ## Protocol
 
 ### JSON over HTTP
@@ -97,12 +95,12 @@ and then the WebNTP server returns the time information formatted by JSON.
 - `it`: the client's timestamp of the request transmission
 - `st`: the server's timestamp
 - `leap`: the seconds of TAI - UTC (before `next`)
-- `next`: the timestamp of the next or last leap second 
+- `next`: the timestamp of the next or last leap second
 - `step`: positive leap second: 1, negative leap second: -1
 
 Example:
 
-``` plain
+```plain
 $ curl -s http://localhost:8080/?1489217288.328757 | jq .
 {
   "id": "localhost:8080",
@@ -157,9 +155,28 @@ It is based on [Time over HTTPS specification](http://phk.freebsd.dk/time/201511
 
 This software is released under the MIT License, see LICENSE.
 
-
 ## SEE ALSO
 
 - [Time over HTTPS](http://phk.freebsd.dk/time/20151129/)
 - [htp](http://www.vervest.org/htp/)
-- [http/httpsを利用した時刻配信(アーカイブ)](https://jjy.nict.go.jp/QandA/reference/http-archive.html) (The time server using http/https (archived))
+- [http/https を利用した時刻配信(アーカイブ)](https://jjy.nict.go.jp/QandA/reference/http-archive.html) (The time server using http/https (archived))
+
+# Docker
+
+```sh
+docker build -t webntp .
+docker run -p 8080:8080 webntp
+```
+
+## ECR プッシュ
+
+```sh
+# MFA認証
+$ sh set-aws-token.sh <current MFA token>
+# Dockerログイン
+$ aws ecr get-login-password --region ap-northeast-1 --profile default-session | docker login --username AWS --password-stdin 808106573293.dkr.ecr.ap-northeast-1.amazonaws.com
+# ビルド & タグ付け
+$ docker build -t go-webntp . && docker tag go-webntp:latest 808106573293.dkr.ecr.ap-northeast-1.amazonaws.com/go-webntp:latest
+# プッシュ
+$ docker push 808106573293.dkr.ecr.ap-northeast-1.amazonaws.com/go-webntp:latest
+```
